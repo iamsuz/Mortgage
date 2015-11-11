@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Loan Amortization calculator</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="http://getbootstrap.com/assets/css/docs.min.css"> -->
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic"> -->
+  <!-- <link rel="stylesheet" href="btn.css"> -->
+  <style type="text/css">
+    body {
+      background: #fff none;
+      color: #018;
+      font: normal 14px Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    }
+    .error {
+      color: red;
+    }
+    .modal.modal-wide .modal-dialog {
+      width: 88%;
+    }
+    .modal-wide .modal-body {
+      overflow-y: auto;
+    }
+    #tallModal .modal-body p 
+    {
+      margin-bottom: 900px 
+    }
+    .modal-body {
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+    }
+    .btn-circle {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 12px;
+      line-height: 1.428571429;
+      border-radius: 15px;
+      border: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 align="center">Loan Amortization calculator</h1>
+    <noscript>
+      <span class="error">
+        The Loan Amortization calculator requires a browser that supports Javascript.<br />
+        Your browser either does not support Javascript or it has Javascript disabled. If you wish to run the solver, please upgrade your browser or enable Javascript support.<br />&nbsp;<br />
+      </span>
+    </noscript>
+
+    <script type="text/javascript">
+      // Test for W3C DOM API.
+      if (document.getElementById) {
+      }
+      else {
+        document.write('<span class="error">The Loan Amortization calculator requires a browser that supports the W3C DOM API.<br \/>Your browser does not support this API. If you wish to run the solver, please upgrade your browser. The latest versions of Mozilla Firefox, Opera, and Internet Explorer have support for this API.<br \/>&nbsp;<br \/><\/span>');
+      }
+    </script>
+    <div class="row">
+      <div class="col-md-offset-3 col-md-6">
+        <div class="jumbotron center">
+
+          <form action="#" onsubmit="main(); return false;" role="form">
+            <div class="form-group">
+              <label for="propertyvalue">Property Value:</label>
+              <input type="text" name="propertyvalue" class="form-control" id="propertyvalue" size="20" value="500000" placeholder="Enter Property value"/>
+            </div>
+            <div class="form-group">
+              <label for="deposite">Deposit:</label>
+              <input type="text" name="deposite" class="form-control" id="deposite" size="20" value="100000" placeholder="Enter Deposite"/>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="capitalgain">% Capital Gain: </label>
+                  <input type="text" name="capitalgain" class="form-control" id="capitalgain" size="20" value="8" placeholder="Enter Capital Gain"/>
+                </div>
+                <div class="col-md-6">
+                  <label for="rentalyield">% Rental Yield:</label>
+                  <input type="text" name="rentalyield" class="form-control" id="rentalyield" size="20" value="4" placeholder="Enter Rental Yield"/>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="amortperiod">Amortization Period: 30<small>years</small></label>
+                  <!-- <input type="text" name="amortperiod" class="form-control" id="amortperiod" size="20" value="30" placeholder="Enter Years"/> -->
+                </div>
+                <div class="col-md-6">
+                  <label for="paymentsperyear">Payments per year: 12<small></small></label>
+                  <!-- <input type="text" name="paymentsperyear" class="form-control" id="paymentsperyear" size="20" value="12" placeholder="Enter Payments Per Year"/> -->
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+
+            </div>
+            <div class="form-group">
+              <label for="interest">Interest rate:</label>
+              <input type="text" name="interest" class="form-control" id="interest" size="20" value="4.10" placeholder="Enter Interest Rate"/>
+            </div>
+            <button type="submit" class="btn btn-info btn-lg" value="Calculate!" data-toggle="modal" data-target="#mymodel"/>Calculate</button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <div class="modal modal-wide fade" id="mymodel" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content ">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="row">
+              <div class="col-md-5">
+                <span id="output_header"></span></div>
+                <div class="col-md-5">
+                  <table id="output_header1"></table>
+                </div>
+                <div id="chart" class="col-md-2"></div>
+                <button type="button" class="btn btn-default" onclick="myJson()">Show Graph</button>
+                <p id="demo"></p>
+              </div>
+              <div>
+                <div id="graphcontainer">
+                </div>
+              </div> 
+              <!-- <h5>Period &nbsp&nbsp&nbsp&nbsp&nbsp&nbspPayment&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspInterest &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspPrincipal &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTotal Pay &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTotal Int &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspEquityinHome&nbsp&nbsp&nbsp&nbsp&nbsp&nbspBalance&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Cur Val Equ</h5> -->
+            </div>
+            <!--<script type="text/javascript">
+              $( '.modal' ).modal( 'hide' ).data( 'bs.modal', null );
+            </script>-->
+            <div class="container modal-body">
+              <div class="table-responsive"> 
+                <table class="table table-bordered table-hover highchart" id="output" data-graph-container="#graphcontainer" data-graph-type="line" data-graph-height="260" data-graph-legend-disabled="1" data-graph-xaxis-labels-enabled="0">
+                  <!-- <div class="container"> -->
+                  <!--  <div id="output"></div> -->
+                  <!-- </div> -->
+                </table>
+              </div>
+            </div><!--  <p>Some text in the modal.</p> -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mastfoot">
+        <div class="inner text-center">
+          <!-- <p>Designed By <a href="http://mahavarkar.in">SUJIT MAHAVARKAR</a>, <a href="https://twitter.com/im_suz">@im_suz</a>.</p> -->
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- // <script src="js/html5-canvas-bar-graph.js"></script> -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharttable.org/master/jquery.highchartTable-min.js"></script>
+    <!-- // <script src="rippleeffect.js"></script> -->
+    <script>
+      $(".modal-wide").on("show.bs.modal", function() {
+        var height = $(window).height() - 200;
+        $(this).find(".modal-body").css("max-height", height);
+      });
+    </script>
+    <script>
+      $('body').on('hidden.bs.modal', '.modal', function() {
+        $(this).removeData('bs.modal');
+      });
+    </script>
+    <script type="text/javascript">
+      function clearOutput() {
+        var output = document.getElementById("output");
+        while (output.firstChild)
+          output.removeChild(output.firstChild);
+      }
+      function removeTables()
+      {
+        var table = document.getElementById("myTable");
+        for(var i = table.rows.length - 1; i >= 0; i--) {
+          table.deleteRow(i);
+        }
+        document.getElementById("myTable").innerHTML = "";
+      }
+      function clearOutputHead() {
+        var output_header = document.getElementById("output_header");
+        while (output_header.firstChild)
+          output_header.removeChild(output_header.firstChild);
+      }
+      function clearOutputHead1() {
+        var output_header1 = document.getElementById("output_header1");
+        while (output_header1.firstChild)
+          output_header1.removeChild(output_header1.firstChild);
+      }
+    // Write a string to the output area.
+    function write(str) {
+      var output = document.getElementById("output");
+      var txt = document.createTextNode(str);
+      output.appendChild(txt);
+    }
+
+    // Write a string with a newline to the output area.
+    // var table=document.createElement('TABLE');
+    function writelnth(str){
+      var output = document.getElementById("output");
+      var thead=document.createElement('THEAD');
+      output.appendChild(thead);
+      var temp = new Array();
+      temp = str.split("  ");
+      var tr=document.createElement('TR');
+      thead.appendChild(tr);
+      for (var zxc2=0;zxc2<temp.length;zxc2++){
+        var th=document.createElement('TH');
+        var a = document.createElement('A');
+        if(zxc2 == 1){
+          // a.setAttribute
+          // <a tabindex="0" class="btn btn-lg btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="Dismissible popover" data-content="And here's some amazing content. It's very engaging. Right?">Dismissible popover</a>
+          a.setAttribute("tabindex","0");
+          a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker1()");
+          a.setAttribute("id","thisbutton");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","Monthly mortgage payment made to the bank");
+        }
+        else if(zxc2 == 2){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker2()");
+          a.setAttribute("id","thisbutton1");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          // a.setAttribute("data-container","body");
+          a.setAttribute("data-content"," This is the interest payment portion of the payment you make to the bank every month. Notice how initially it comprises a significant part of the mortgage payment and then steadily reduces.");
+        }
+        else if(zxc2 == 3){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker3()");
+          a.setAttribute("id","thisbutton2");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is the payment you make to actually reduce the amount you owe to the bank. This is what builds your equity in the home. The banks are clever enough to keep the principal portion low in the first few years as compared to the interest you pay. This also means that initially you build equity very slowly in your home.");
+        }
+        else if(zxc2 == 4){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker4()");
+          a.setAttribute("id","thisbutton3");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This column allows you to track the total payment you have made so far for your home. This is including the deposit and the monthly bank payments");
+        }
+        else if(zxc2 == 5){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker5()");
+          a.setAttribute("id","thisbutton4");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is the total interest you have paid to the bank till date. This is money you pay for the privilege of living in the property, note that the interest payments do not increase your actual equity or ownership of the home.");
+        }
+        else if(zxc2 == 6){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker6()");
+          a.setAttribute("id","thisbutton5");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content"," This represents your actual ownership in the home. This includes the deposit and the principal you have paid off till date.");
+        }
+        else if(zxc2 == 7){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker7()");
+          a.setAttribute("id","thisbutton6");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is what you still owe in principal to the bank. As you pay off the principal this amount drops down to 0 at the end.");
+        }
+        else if(zxc2 == 8){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker8()");
+          a.setAttribute("id","thisbutton7");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This represents the appreciation in property value or the capital gain");
+        }
+        else if(zxc2 == 9){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker9()");
+          a.setAttribute("id","thisbutton8");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","Since your property increases in value, your equity in home is now worth more. Compare this to the value in Equity in Home column");
+        }
+        else if(zxc2 == 10){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("id","thisbutton9");
+          a.setAttribute("onclick","blinker10()");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is the expected market value of your property due to the market appreciation");
+        }
+        else if(zxc2 == 11){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker11()");
+          a.setAttribute("id","thisbutton10");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is what you would have paid every month if you were renting the property. Note that we have factored in increase in rents over a period of time.");
+        }
+        else if(zxc2 == 12){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker12()");
+          a.setAttribute("id","thisbutton11");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This is the total amount that would have gone towards rentals");
+        }
+        else if(zxc2 == 13){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker13()");
+          a.setAttribute("id","thisbutton12");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","You save on rent if you own your home, and your equity value in home also rises as the property appreciates. This value is the sum of the cumulative amount you saved on rent so far and the current value of your equity");
+        }
+        else if(zxc2 == 14){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker14()");
+          a.setAttribute("id","thisbutton13");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","Return on investment is the difference between you what benefits you got (capital appreciation of home equity and rent savings) vs total payment (deposit +monthly mortgage payment) for it.");
+        }
+        else if(zxc2 == 15){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker15()");
+          a.setAttribute("id","thisbutton14");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","This tracks your % return on investment made so far using the previous column as reference.");
+        }
+        else if(zxc2 == 16){
+          a.setAttribute("tabindex","0");
+         a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker16()");
+          a.setAttribute("id","thisbutton15");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","Notice how the only investment you are making here is an amount equal to the deposit and there are no additional monthly payments");
+        }
+        else if(zxc2 == 17){
+          a.setAttribute("tabindex","0");
+          a.setAttribute("class","btn btn-default btn-circle");
+          // a.setAttribute("role","button");
+          a.setAttribute("onclick","blinker17()");
+          a.setAttribute("id","thisbutton16");
+          a.setAttribute("data-toggle","popover");
+          a.setAttribute("data-placement","left");
+          a.setAttribute("data-trigger","focus");
+          a.setAttribute("data-container","body");
+          a.setAttribute("data-content","We are taking the same capital gain and rental yield. Each property duration is assumed to be 2 years and then the returns are reinvested");
+        }
+        if(zxc2 == 15 || zxc2 == 18){
+          th.setAttribute("data-graph-hidden","0");
+        }
+        else{
+          th.setAttribute("data-graph-hidden","1");
+        }
+        th.appendChild(document.createTextNode(temp[zxc2]));
+        // a.appendChild(document.createTextNode("temp[zxc2]"));
+        th.appendChild(a);
+        tr.appendChild(th);
+      }
+    }
+    function writeln(str) {
+      var output = document.getElementById("output");
+      output.appendChild(tbdy);
+      var temp = new Array();
+      temp = str.split("  ");
+      var tr=document.createElement('TR');
+      tbdy.appendChild(tr);
+      for (var zxc2=0;zxc2<temp.length;zxc2++){
+        var td=document.createElement('TD');
+        td.setAttribute("title","This Value is "+temp[zxc2]);
+        td.appendChild(document.createTextNode(temp[zxc2]));
+        tr.appendChild(td);
+      }
+    }
+    function writelnHead(str) {
+      var output_header = document.getElementById("output_header");
+      var txt = document.createTextNode(str);
+      var newline = document.createElement("br");
+      output_header.appendChild(txt);
+      output_header.appendChild(newline);
+    }
+    function writelnHead1(str) {
+      var output_header1 = document.getElementById("output_header1");
+      var txt = document.createTextNode(str);
+      var newline = document.createElement("br");
+      output_header1.appendChild(txt);
+      output_header1.appendChild(newline);
+    }
+    // Write a string in red to signify an error.
+    function errorln(str) {
+      var output = document.getElementById("output");
+      var txt = document.createTextNode(str);
+      var newline = document.createElement("br");
+      var span = document.createElement("span");
+    // setAttribute("class" ...) does not work in IE.
+    span.className = "error";
+    span.appendChild(txt);
+    span.appendChild(newline);
+    output.appendChild(span);
+  }
+
+    // Format floating point number in fixed-point notation.
+    function fixedfmt(num, decimals) {
+    // Number.toFixed is a Javascript 1.5 feature, 
+    // so we need to test for it here.
+    return num.toFixed ? num.toFixed(decimals) : num;
+  }
+
+  function fmtmoney(num) {
+    return fixedfmt(num, 2);
+  }
+  function fmtmoney2(num) {
+    return fixedfmt(num, 6);
+  }
+  function fmtmoney1(num) {
+    if (Math.abs(num) < 0.005)
+      num = 0;
+    return "$" + fixedfmt(num, 4);
+  }
+
+  function fmtpct(num) {
+    return fixedfmt(num * 100, 2) + "%";
+  }
+  function fmtpct1(num) {
+    return fixedfmt(num, 2) + "%";
+  }
+
+  function flushright(s, width) {
+    var str = s.toString();
+    var pad = width - str.length;
+    for (var i = 0; i < pad; ++i)
+      str = " " + str;
+    return str;
+  }
+
+    // Get numbers from the input fields.
+    function getInput() {
+      var field;
+      var obj = new Object();
+
+      field = document.getElementById("propertyvalue");
+      obj.propertyvalue = parseFloat(field.value);
+      if (isNaN(obj.propertyvalue) || obj.propertyvalue <= 0) {
+        errorln("Invalid propertyvalue amount '" + field.value + 
+          "'. Need a positive number.");
+        return false;
+      }
+      field = document.getElementById("capitalgain");
+      obj.capitalgain = parseFloat(field.value);
+      if (isNaN(obj.capitalgain) || obj.capitalgain <= 0) {
+        errorln("Invalid capitalgain amount '" + field.value + 
+          "'. Need a positive number.");
+        return false;
+      }
+      field = document.getElementById("rentalyield");
+      obj.rentalyield = parseFloat(field.value);
+      if (isNaN(obj.rentalyield) || obj.rentalyield <= 0) {
+        errorln("Invalid rentalyield amount '" + field.value + 
+          "'. Need a positive number.");
+        return false;
+      }
+      field = document.getElementById("deposite");
+      obj.deposite = parseFloat(field.value);
+      if (isNaN(obj.deposite) || obj.deposite < 0) {
+        errorln("Invalid deposite amount '" + field.value + 
+          "'. Need a positive number.");
+        return false;
+      }
+      field = document.getElementById("interest");
+      obj.interest = parseFloat(field.value) / 100;
+      if (isNaN(obj.interest) || obj.interest <= 0) {
+        errorln("Invalid interest rate '" + field.value + 
+          "'. Need a positive number.");
+        return false;
+      }
+
+      return obj;
+    }
+
+    function main() {
+      tbdy=document.createElement('TBODY');
+      clearOutput();
+      clearOutputHead();
+      clearOutputHead1();
+      // if (table != null)
+      // removeTables();
+      var input = getInput();
+      if (!input)
+        return false;
+      var intrate = input.interest;
+      var icapital = input.capitalgain;
+      var intrate = (intrate / 12);
+      var numpayments = 360;
+      var rentyield = input.rentalyield;
+      var loanamt = input.propertyvalue - input.deposite;
+      var x = Math.pow(1 + intrate, numpayments);
+      var payments = intrate * loanamt * x / (x - 1);
+      var monthlyreturn = ((icapital + rentyield)/1200);
+      writelnHead("Original Principal  = " + fmtmoney(loanamt));
+      writelnHead("Deposit             = " + fmtmoney(input.deposite));
+      writelnHead("Interest            = " + input.interest*100 + " %");
+      // writelnHead("Rental per Month    = " + fmtmoney(rent));
+      writelnHead1("Monthly Return  = " + fmtmoney(monthlyreturn));
+      writelnHead1("Payments       = " + fmtmoney(payments));
+      writelnHead1("Total payments = " + fmtmoney(payments * numpayments));
+      writelnHead1("Interest cost  = " + 
+        fmtmoney(payments * numpayments - loanamt));
+      // writelnHead(""); 
+      writelnth("Months  Monthly Payment  Interest  Principal  Total Payment  Total Interest  Equity in Home  Balance  cumulative Capital Gain  Current Value of Equity  Current Property Value  Rent Per Month  Cumulative Rent  Effective Benefit  Return on investment  %RoI  Total Fractional Investment  Return on Fractional Investment with Deposit Amount  %Return on Fractional Investment");
+      // writeln("Months               bal*intR    Pay - int   depo +pay  int+prevint   princ+prevEq      Balance  Tprin*(1+PPApr)   cumrent    RentPMon cRent+cVE-Tpay effBenefit1   rtrninvst   yearlyRetn                                  ");
+      // writeln("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+      // var propertypriceapp = 0;
+      var balance = loanamt;
+      var sumint = 0;
+      var ideposit = input.deposite
+      var equityinhome = input.deposite;
+      var sumpay = input.deposite;
+      var cumrentpmonth =  0;
+      var monthlyreturn1 = monthlyreturn;
+      var cumcapitalgain = 0;
+      var totalfractionalinvest = ideposit;
+      for (var i = 1; i <= numpayments; ++i) {
+        var retonfractionalinvestmentwithdeposit = totalfractionalinvest * (1+monthlyreturn1);
+        var noname3 = (retonfractionalinvestmentwithdeposit - ideposit)/ideposit;
+        cumcapitalgain = (icapital/(12*100)) + cumcapitalgain;
+        var cumvalueofproperty = input.propertyvalue*(1+cumcapitalgain);
+        sumpay += payments;
+        // propertypriceapp = 0.0090 + propertypriceapp;
+        var thisint = balance * intrate;
+        sumint += thisint;
+        var thisprin = payments - thisint;
+        equityinhome += thisprin;
+        balance -= thisprin;
+        var curvalequity = equityinhome * (1 + cumcapitalgain);
+        var rent = cumvalueofproperty * rentyield / (100*12);
+        cumrentpmonth =  cumrentpmonth + rent;
+        var effbenefit = cumrentpmonth + curvalequity; 
+        var returnoninvesmnt = effbenefit - sumpay;
+        var noname2 = effbenefit / sumpay * 12 * 100;
+        var perreturnoninvesmnt = returnoninvesmnt/sumpay;
+        var noname1 = monthlyreturn1 * input.deposite;
+        writeln(flushright(i, 0) + "  " + 
+          flushright(fmtmoney(payments), 0) + "  " + 
+          flushright(fmtmoney(thisint), 0) + "  " + 
+          flushright(fmtmoney(thisprin), 0) + "  " + 
+          flushright(fmtmoney(sumpay), 0) + "  " + 
+          flushright(fmtmoney(sumint), 0) + "  " + 
+          flushright(fmtmoney(equityinhome), 0) + "  " + 
+          flushright(fmtmoney(balance), 0) + "   " +
+          flushright(fmtmoney2(cumcapitalgain), 0) + "  " +
+          flushright(fmtmoney(curvalequity), 0) + "  " +
+          flushright(fmtmoney(cumvalueofproperty), 0) + "  " +
+          flushright(fmtmoney(rent), 0) + "  " +
+          flushright(fmtmoney(cumrentpmonth), 0) + "  " +
+          flushright(fmtmoney(effbenefit), 0) + "  " +
+          flushright(fmtmoney(returnoninvesmnt), 0) + "  " +
+          flushright(fmtpct(perreturnoninvesmnt), 0) + "  " +
+          // flushright(fmtpct(monthlyreturn1), 0) + "  " +
+          flushright(fmtmoney(totalfractionalinvest), 0) + "  " +
+          flushright(fmtmoney(retonfractionalinvestmentwithdeposit), 0) + "  " +
+          flushright(fmtpct(noname3),0));
+          // flushright(fmtmoney(noname2), 0) + "  " +
+          // flushright(fmtmoney(noname1), 0));
+        // rent = rent + (rent/120);
+        monthlyreturn1 = monthlyreturn1 + monthlyreturn;
+        if(i % 24 == 0){
+          // retonfractionalinvestmentwithdeposit = totalfractionalinvest * (1+monthlyreturn1);
+          totalfractionalinvest = retonfractionalinvestmentwithdeposit;
+          monthlyreturn1 = monthlyreturn;
+        }
+        // write("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        // writeln("");
+      }
+      $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();   
+      });
+      blinker();
+      window.onload=blinker;
+    }
+    var t;
+    function blinker(){
+      clearTimeout();
+      document.getElementById("thisbutton").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton').style.backgroundColor=''", 500);
+      t= setTimeout("blinker()",1000);
+    }
+    function blinker1(){
+      clearTimeout(t);
+      document.getElementById("thisbutton1").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton1').style.backgroundColor=''", 500);
+      t =setTimeout("blinker1()",1000);
+    }
+    function blinker2(){
+      clearTimeout(t);
+      document.getElementById("thisbutton2").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton2').style.backgroundColor=''", 500);
+      t= setTimeout("blinker2()",1000);
+    }
+    function blinker3(){
+      clearTimeout(t);
+      document.getElementById("thisbutton3").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton3').style.backgroundColor=''", 500);
+      t= setTimeout("blinker3()",1000);
+    }
+    function blinker4(){
+      clearTimeout(t);
+      document.getElementById("thisbutton4").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton4').style.backgroundColor=''", 500);
+      t= setTimeout("blinker4()",1000);
+    }
+    function blinker5(){
+      clearTimeout(t);
+      document.getElementById("thisbutton5").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton5').style.backgroundColor=''", 500);
+      t= setTimeout("blinker5()",1000);
+    }
+    function blinker6(){
+      clearTimeout(t);
+      document.getElementById("thisbutton6").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton6').style.backgroundColor=''", 500);
+      t= setTimeout("blinker6()",1000);
+    }
+    function blinker7(){
+      clearTimeout(t);
+      document.getElementById("thisbutton7").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton7').style.backgroundColor=''", 500);
+      t= setTimeout("blinker7()",1000);
+    }
+    function blinker8(){
+      clearTimeout(t);
+      document.getElementById("thisbutton8").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton8').style.backgroundColor=''", 500);
+      t= setTimeout("blinker8()",1000);
+    }
+    function blinker9(){
+      clearTimeout(t);
+      document.getElementById("thisbutton9").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton9').style.backgroundColor=''", 500);
+      t= setTimeout("blinker9()",1000);
+    }
+    function blinker10(){
+      clearTimeout(t);
+      document.getElementById("thisbutton10").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton10').style.backgroundColor=''", 500);
+      t= setTimeout("blinker10()",1000);
+    }
+    function blinker11(){
+      clearTimeout(t);
+      document.getElementById("thisbutton11").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton11').style.backgroundColor=''", 500);
+      t= setTimeout("blinker11()",1000);
+    }
+    function blinker12(){
+      clearTimeout(t);
+      document.getElementById("thisbutton12").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton12').style.backgroundColor=''", 500);
+      t= setTimeout("blinker12()",1000);
+    }
+    function blinker13(){
+      clearTimeout(t);
+      document.getElementById("thisbutton13").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton13').style.backgroundColor=''", 500);
+      t= setTimeout("blinker13()",1000);
+    }
+    function blinker14(){
+      clearTimeout(t);
+      document.getElementById("thisbutton14").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton14').style.backgroundColor=''", 500);
+      t= setTimeout("blinker14()",1000);
+    }
+    function blinker15(){
+      clearTimeout(t);
+      document.getElementById("thisbutton15").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton15').style.backgroundColor=''", 500);
+      t= setTimeout("blinker15()",1000);
+    }
+    function blinker16(){
+      clearTimeout(t);
+      document.getElementById("thisbutton16").style.backgroundColor="red";
+      setTimeout("document.getElementById('thisbutton16').style.backgroundColor=''", 500);
+      t= setTimeout("blinker16()",1000);
+    }
+    function blinker17(){
+      clearTimeout(t);
+    }
+
+  </script>
+  <!--<script type="text/javascript">
+    function myJson(){
+      var myRows = [];
+      var headersText = [];
+      var $headers = $("th");
+    // Loop through grabbing everything
+    var $rows = $("tbody tr").each(function(index) {
+      $cells = $(this).find("td");
+      myRows[index] = {};
+
+      $cells.each(function(cellIndex) {// Set the header text
+        if(headersText[cellIndex] === undefined) {
+          headersText[cellIndex] = $($headers[cellIndex]).text();
+      }// Update the row object with the header/cell combo
+      myRows[index][headersText[cellIndex]] = $(this).text();
+    });    
+    });
+      // Let's put this in the object like you want and convert to JSON (Note: jQuery will also do this for you on the Ajax request)
+      // var myObj = {
+      //   "myrows": myRows
+      // };
+      window.alert(JSON.stringify(myRows));
+    }
+  </script>-->
+  <script>
+    function myJson(){
+      $(document).ready(function() {
+        $('table.highchart').highchartTable();
+      });
+    }
+  </script>
+</body>
+</html>
